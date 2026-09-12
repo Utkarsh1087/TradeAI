@@ -81,6 +81,14 @@ graph TD
 
 ---
 
+## 🛠️ Technologies Used
+
+- **Frontend & App Framework:** Next.js 16 (App Router), React 19, TypeScript
+- **Styling & UI:** Tailwind CSS v4, Lucide React Icons
+- **AI & Validation:** Google Gemini 2.5, Groq (Llama 3.3 70B), Zod Schema Validation
+- **Quality Assurance & Testing:** Node.js Test Runner / tsx (43-point security & logic audit)
+- **Security:** In-memory sliding-window IP rate limiting, input sanitization, strict CSP headers
+
 ## 🛡️ Security & Quality Assurance
 
 A dedicated security audit was conducted against OWASP Top 10 and LLM-specific vulnerabilities. See the full [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) report.

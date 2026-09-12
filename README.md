@@ -143,5 +143,5 @@ npm start
 ---
 
 ## 👨‍💻 Developer Note
-Built as a robust, production-ready prototype for algorithmic trading hypothesis synthesis. Engineered with a dual-engine pipeline (LLM Structured Outputs + deterministic offline fallback), runtime Zod schema validation, and zero external runtime dependencies for offline reliability.
+Building this prototype was an exciting deep-dive into bridging quantitative trading concepts with structured AI interactions. I focused on making the experience intuitive, reliable, and production-ready. Hope you enjoy reviewing and testing it!
 

@@ -81,6 +81,8 @@ function ResultsContent() {
     'Extracting quantitative entry & exit rules...',
     'Parsing filters & volatility regimes...',
     'Synthesizing formal research hypothesis...',
+  ];
+
   const generateShortResponse = (data: ExperimentAnalysis) => {
     const hasAmbiguity = data.clarificationNeeded && data.clarificationQuestions.length > 0;
     if (hasAmbiguity) {
@@ -601,11 +603,17 @@ ${
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getStatusBadge = (status: ParameterStatus) => {
+  const getStatusBadge = (status: ParameterStatus | 'clarified' | 'provided' | string) => {
     switch (status) {
+      case 'provided':
       case 'explicit':
         return {
           label: 'Provided',
+          cls: 'bg-emerald-50 text-emerald-800 border-emerald-200/90',
+        };
+      case 'clarified':
+        return {
+          label: 'Clarified',
           cls: 'bg-emerald-50 text-emerald-800 border-emerald-200/90',
         };
       case 'assumed':

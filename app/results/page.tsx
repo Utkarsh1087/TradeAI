@@ -81,14 +81,78 @@ function ResultsContent() {
     'Extracting quantitative entry & exit rules...',
     'Parsing filters & volatility regimes...',
     'Synthesizing formal research hypothesis...',
-  ];
-
   const generateShortResponse = (data: ExperimentAnalysis) => {
     const hasAmbiguity = data.clarificationNeeded && data.clarificationQuestions.length > 0;
     if (hasAmbiguity) {
       return `I parsed your hypothesis for **${data.instrument}** on **${data.timeframe}** timeframe. However, "${data.clarificationQuestions[0]?.question || 'some parameters'}" is ambiguous. Please select a threshold on the left to compile the experiment.`;
     }
     return `Structured your experiment for **${data.instrument}** (${data.timeframe}) with entry on **${data.entryCondition}** and holding period of **${data.holdingPeriod}**. The strategy plan is ready for backtesting.`;
+  };
+
+  const getDynamicContextChips = (
+    analysisData: ExperimentAnalysis | null,
+    finalExp: FinalExperiment | null,
+    contextStage: 'initial' | 'holding_changed' | 'timeframe_changed' | 'stoploss_changed' | 'clarified'
+  ): string[] => {
+    const inst = finalExp?.instrument || analysisData?.instrument || 'NIFTY';
+    const tf = (finalExp?.timeframe || analysisData?.timeframe || 'Daily').toLowerCase();
+    const holding = (finalExp?.holdingPeriod || analysisData?.holdingPeriod || '3 trading days').toLowerCase();
+    const exit = (finalExp?.exitCondition || analysisData?.exitCondition || '').toLowerCase();
+    const filters = ((finalExp?.filters || analysisData?.filters || []).join(' ')).toLowerCase();
+
+    if (contextStage === 'holding_changed') {
+      const chips: string[] = [];
+      chips.push(tf.includes('daily') ? '+ Switch to 1-Hour timeframe' : '+ Switch to Daily timeframe');
+      chips.push(exit.includes('stop') ? '+ Add 3% Take Profit' : '+ Add 2% Stop Loss');
+      chips.push(`+ Compare vs Buy & Hold ${inst}`);
+      return chips;
+    }
+
+    if (contextStage === 'timeframe_changed') {
+      const chips: string[] = [];
+      chips.push(holding.includes('5') ? '+ Test on 3-day swing' : '+ Test on 5-day holding');
+      chips.push(filters.includes('volatility') ? '+ Filter: RSI < 30 Oversold' : '+ Filter: India VIX > 20');
+      chips.push('+ Add 2% Stop Loss');
+      return chips;
+    }
+
+    if (contextStage === 'stoploss_changed') {
+      return [
+        '+ Add 3% Take Profit Target',
+        '+ Test on 10-day continuation',
+        '+ Switch to 1-Hour timeframe',
+      ];
+    }
+
+    if (contextStage === 'clarified') {
+      return [
+        '+ Test on 5-day holding',
+        '+ Add 2% Stop Loss',
+        `+ Compare vs Buy & Hold ${inst}`,
+      ];
+    }
+
+    // Initial stage: contextual to instrument & ambiguity
+    const chips: string[] = [];
+    const isCrypto = ['btc', 'eth', 'bitcoin', 'crypto'].some((c) => inst.toLowerCase().includes(c));
+    const isStock = ['reliance', 'tcs', 'hdfc', 'infy', 'apple', 'tsla'].some((s) => inst.toLowerCase().includes(s));
+
+    if (isCrypto) {
+      chips.push('+ Switch to 4-Hour timeframe');
+      chips.push('+ Add 4% Trailing Stop');
+      chips.push('+ Test on 7-day holding');
+    } else if (isStock) {
+      chips.push('+ Test on 5-day holding');
+      chips.push('+ Add 1.5% Stop Loss');
+      chips.push(`+ Filter: Earnings season only`);
+    } else {
+      // Default index (NIFTY, BANK NIFTY, SPY)
+      chips.push(holding.includes('5') ? '+ Test on 3-day swing' : '+ Test on 5-day holding');
+      chips.push(tf.includes('1-hour') ? '+ Switch to Daily timeframe' : '+ Switch to 1-Hour timeframe');
+      chips.push(filters.includes('volatility') ? '+ Add 2% Stop Loss' : '+ Filter: India VIX > 20');
+    }
+
+    return chips;
   };
 
   const streamAiMessage = (fullText: string, chips: string[] = [], onComplete?: () => void) => {
@@ -229,13 +293,9 @@ function ResultsContent() {
 
       // Stream assistant response word-by-word
       const responseText = generateShortResponse(receivedAnalysis);
-      const defaultChips = [
-        'Test on 5-day holding',
-        'Switch to 1-Hour timeframe',
-        'Add 2% Stop Loss',
-      ];
+      const dynamicChips = getDynamicContextChips(receivedAnalysis, null, 'initial');
 
-      streamAiMessage(responseText, defaultChips, () => {
+      streamAiMessage(responseText, dynamicChips, () => {
         // Auto-compile experiment smoothly after typewriter completes
         if (!receivedAnalysis.clarificationNeeded || receivedAnalysis.clarificationQuestions.length === 0) {
           const autoExperiment: FinalExperiment = {
@@ -500,17 +560,12 @@ function ResultsContent() {
 
     setFinalExperiment(compiled);
 
-    // Notify in chat
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        id: `msg_ai_clarified_${Date.now()}`,
-        sender: 'assistant',
-        text: `Clarifications applied! Compiled experiment for **${compiled.instrument}** with rule: *"${compiled.entryCondition}"*. Specification is ready.`,
-        timestamp: timeStr,
-      },
-    ]);
+    // Stream confirmation with next-step contextual chips
+    const compileChips = getDynamicContextChips(analysis, compiled, 'clarified');
+    streamAiMessage(
+      `Clarifications applied! Compiled experiment for **${compiled.instrument}** (${compiled.timeframe}) with rule: *"${compiled.entryCondition}"*. Specification is ready.`,
+      compileChips
+    );
   };
 
   const handleCopyMarkdown = () => {

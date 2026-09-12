@@ -21,6 +21,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'TradeAI — Trading Research Assistant',
   description: 'Turn your trading ideas in plain English into clear, structured strategy test plans.',
+  icons: {
+    icon: '/images/logo-2.svg',
+    shortcut: '/images/logo-2.svg',
+    apple: '/images/logo-2.svg',
+  },
 };
 
 export default function RootLayout({

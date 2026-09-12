@@ -101,7 +101,7 @@ A dedicated security audit was conducted against OWASP Top 10 and LLM-specific v
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/your-username/TradeAI.git
+git clone https://github.com/Utkarsh1087/TradeAI.git
 cd TradeAI
 npm install
 ```
@@ -142,6 +142,6 @@ npm start
 
 ---
 
-## 📄 License
-MIT License. Free for open-source and commercial use.
+## 👨‍💻 Developer Note
+Built as a robust, production-ready prototype for algorithmic trading hypothesis synthesis. Engineered with a dual-engine pipeline (LLM Structured Outputs + deterministic offline fallback), runtime Zod schema validation, and zero external runtime dependencies for offline reliability.
 

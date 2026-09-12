@@ -1,11 +1,27 @@
 {
-  "id": "exp_test_live",
-  "instrument": "RELIANCE",
-  "timeframe": "1-Hour (60m)",
-  "entryCondition": "RELIANCE falls by >= 2.0% in a single session",
-  "exitCondition": "Close position after 5 trading days or 2% Stop Loss",
-  "holdingPeriod": "5 trading days",
+  "id": "exp_1789248612133",
+  "originalQuestion": "\"Does buying NIFTY after a 1% fall work better during high-volatility periods?\"",
+  "instrument": "NIFTY",
+  "timeframe": "15-minute",
+  "entryCondition": "NIFTY falls by >=1% in a single period",
+  "exitCondition": "target_gain",
+  "holdingPeriod": "1d",
   "filters": [
-    "High volatility periods (India VIX > 20)"
-  ]
+    "VIX>25"
+  ],
+  "testPeriod": "2019 - 2024 (5-Year Historical Sample)",
+  "researchQuestion": "Does buying NIFTY after a 1% decline generate superior returns during high‑volatility periods compared to other market regimes?",
+  "hypothesis": "Purchasing NIFTY on NIFTY falls by >=1% in a single period exhibits a positive post-entry drift over the subsequent 1d window during VIX>25.",
+  "assumptions": [
+    "Daily timeframe is a common default for percentage‑based moves and is assumed unless clarified"
+  ],
+  "missingInformation": [],
+  "confidence": "high",
+  "userClarificationsApplied": {
+    "q1": "15-minute",
+    "q2": "VIX>25",
+    "q3": "target_gain",
+    "q4": "1d"
+  },
+  "lastModified": "03:00:12"
 }

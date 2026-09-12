@@ -188,10 +188,16 @@ As encouraged by the assignment brief, modern AI tools were leveraged throughout
 
 ## 🔮 What I Would Improve With More Time
 
-1. **Live Historical Backtesting Integration:** Connect the compiled experiment JSON directly to historical market data APIs (e.g. Yahoo Finance, Alpaca, Zerodha) to show immediate equity curves and Sharpe ratios.
-2. **Multi-Leg Strategy & Options Parser:** Extend the grammar and schema to parse complex multi-leg options structures (Iron Condors, Straddles, Delta-Neutral hedges).
-3. **Historical Experiment Memory:** Introduce persistent database storage (PostgreSQL / Supabase) with semantic vector search to compare newly formulated hypotheses against past backtest results.
-4. **Automated Python Backtrader Code Generation:** Generate downloadable Python scripts (`strategy.py`) implementing the parsed rules for local execution in quantitative IDEs.
+1. **📊 In-App Interactive Equity Curves & Drawdown Charts:**
+   Integrate TradingView Lightweight Charts / Recharts directly into the Results Workspace to visually render historical equity growth, drawdowns, and monthly return heatmaps without switching to a terminal.
+2. **🧠 Persistent Strategy Memory & Cross-Hypothesis Learning (Vector DB):**
+   Implement PostgreSQL + pgvector to store past tested strategies. When a user asks a new question (e.g. *"Should I buy the dip on NIFTY?"*), the assistant can cross-reference past experiments and suggest regime-specific optimizations.
+3. **⚡ Multi-Leg Options & Derivatives Grammar Parser:**
+   Extend the entity-extraction schema to recognize options strategies (e.g. Iron Condors, Straddles, Calendar Spreads, IV Rank filters) and compute Greek exposures (Delta, Gamma, Theta).
+4. **📥 1-Click Downloadable Python Code (`strategy.py`):**
+   Add a button to export ready-to-run Python scripts pre-configured for Backtrader, VectorBT, or QuantConnect for instant quantitative execution.
+5. **🔔 Automated Paper Trading & Webhook Execution:**
+   Provide webhook endpoints to connect validated experiments directly to broker sandboxes (e.g. Zerodha Kite, Alpaca, Interactive Brokers) for forward-testing with simulated capital.
 
 ---
 

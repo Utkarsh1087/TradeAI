@@ -353,55 +353,75 @@ function ResultsContent() {
       }
     }
 
+    const cleanText = (val: string) => {
+      if (!val) return val;
+      const map: Record<string, string> = {
+        same_day: 'End of same trading day',
+        next_day: 'End of next trading day',
+        '1_day': '1 trading day',
+        '3_days': '3 trading days',
+        '5_days': '5 trading days',
+        '10_days': '10 trading days',
+      };
+      return map[val] || val;
+    };
+
     let updatedEntry = analysis.entryCondition;
     let updatedHolding = analysis.holdingPeriod;
     let updatedExit = analysis.exitCondition;
+    let updatedTimeframe = analysis.timeframe;
     let updatedFilters = [...analysis.filters];
 
-    Object.entries(resolved).forEach(([qId, val]) => {
+    Object.entries(resolved).forEach(([qId, rawVal]) => {
+      const val = cleanText(rawVal);
       const qObj = analysis.clarificationQuestions.find((q) => q.id === qId);
-      if (!qObj) return;
+      const field = qObj?.field || '';
+      const qText = qObj?.question?.toLowerCase() || '';
 
-      if (qObj.field === 'entryCondition') {
+      if (field === 'timeframe' || qText.includes('timeframe')) {
+        updatedTimeframe = val;
+      } else if (field === 'entryCondition' || qText.includes('fall') || qText.includes('dip')) {
         updatedEntry = `${analysis.instrument} falls by >= ${val} in a single session`;
-      } else if (qObj.field === 'holdingPeriod') {
+      } else if (field === 'holdingPeriod' || qText.includes('holding') || qText.includes('how long')) {
         updatedHolding = val;
         if (updatedExit === 'Not specified') {
           updatedExit = `Close position after ${val}`;
         }
-      } else if (qObj.field === 'exitCondition') {
+      } else if (field === 'exitCondition' || qText.includes('closed') || qText.includes('exit')) {
         updatedExit = val;
-      } else if (qObj.field === 'filters') {
-        updatedFilters.push(`Filter: ${val}`);
+      } else if (field === 'filters' || qText.includes('volatility') || qText.includes('regime')) {
+        updatedFilters = updatedFilters.filter((f) => !f.toLowerCase().includes('volatility'));
+        updatedFilters.push(val);
       }
     });
 
+    if (updatedTimeframe === 'Not specified') {
+      updatedTimeframe = 'Daily';
+    }
     if (updatedHolding === 'Not specified') {
-      updatedHolding = '3 trading days (Mean-reversion standard)';
+      updatedHolding = '3 trading days';
     }
     if (updatedExit === 'Not specified') {
       updatedExit = `Close position after ${updatedHolding}`;
+    }
+    if (updatedFilters.length === 0 || updatedFilters[0] === 'None (Broad market condition)') {
+      updatedFilters = ['High volatility periods (India VIX > 20)'];
     }
 
     const compiled: FinalExperiment = {
       id: `exp_${Date.now()}`,
       originalQuestion: analysis.originalQuestion,
       instrument: analysis.instrument,
-      timeframe: analysis.timeframe,
+      timeframe: updatedTimeframe,
       entryCondition: updatedEntry,
       exitCondition: updatedExit,
       holdingPeriod: updatedHolding,
       filters: updatedFilters.filter((f) => f !== 'None (Broad market condition)'),
       testPeriod: '2019 - 2024 (5-Year Historical Sample)',
       researchQuestion: analysis.researchQuestion,
-      hypothesis: `Purchasing ${analysis.instrument} on ${updatedEntry} exhibits a positive post-entry drift over the subsequent ${updatedHolding} window.`,
+      hypothesis: `Purchasing ${analysis.instrument} on ${updatedEntry} exhibits a positive post-entry drift over the subsequent ${updatedHolding} window during ${updatedFilters.join(' & ')}.`,
       assumptions: analysis.assumptions,
-      missingInformation: analysis.missingInformation.filter(
-        (m) =>
-          !m.toLowerCase().includes('holding') &&
-          !m.toLowerCase().includes('exit') &&
-          !m.toLowerCase().includes('definition')
-      ),
+      missingInformation: [],
       confidence: 'high',
       userClarificationsApplied: resolved,
       lastModified: new Date().toLocaleTimeString(),
@@ -697,15 +717,44 @@ ${
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
-                    { label: 'Market', val: analysis.instrument, status: analysis.parameterStatuses.instrument, icon: TrendingUp },
-                    { label: 'Timeframe', val: analysis.timeframe, status: analysis.parameterStatuses.timeframe, icon: Clock },
-                    { label: 'Entry Rule', val: analysis.entryCondition, status: analysis.parameterStatuses.entryCondition, icon: LogIn },
-                    { label: 'Exit Rule', val: analysis.exitCondition, status: analysis.parameterStatuses.exitCondition, icon: LogOut },
-                    { label: 'Holding Window', val: analysis.holdingPeriod, status: analysis.parameterStatuses.holdingPeriod, icon: Timer },
+                    {
+                      label: 'Market',
+                      val: finalExperiment ? finalExperiment.instrument : analysis.instrument,
+                      status: finalExperiment ? 'provided' : analysis.parameterStatuses.instrument,
+                      icon: TrendingUp,
+                    },
+                    {
+                      label: 'Timeframe',
+                      val: finalExperiment ? finalExperiment.timeframe : analysis.timeframe,
+                      status: finalExperiment ? 'clarified' : analysis.parameterStatuses.timeframe,
+                      icon: Clock,
+                    },
+                    {
+                      label: 'Entry Rule',
+                      val: finalExperiment ? finalExperiment.entryCondition : analysis.entryCondition,
+                      status: finalExperiment ? 'provided' : analysis.parameterStatuses.entryCondition,
+                      icon: LogIn,
+                    },
+                    {
+                      label: 'Exit Rule',
+                      val: finalExperiment ? finalExperiment.exitCondition : analysis.exitCondition,
+                      status: finalExperiment ? 'clarified' : analysis.parameterStatuses.exitCondition,
+                      icon: LogOut,
+                    },
+                    {
+                      label: 'Holding Window',
+                      val: finalExperiment ? finalExperiment.holdingPeriod : analysis.holdingPeriod,
+                      status: finalExperiment ? 'clarified' : analysis.parameterStatuses.holdingPeriod,
+                      icon: Timer,
+                    },
                     {
                       label: 'Regime Filter',
-                      val: analysis.filters.length > 0 ? analysis.filters.join(', ') : 'None (Broad market)',
-                      status: analysis.parameterStatuses.filters,
+                      val: finalExperiment
+                        ? finalExperiment.filters.join(', ')
+                        : analysis.filters.length > 0
+                        ? analysis.filters.join(', ')
+                        : 'None (Broad market)',
+                      status: finalExperiment ? 'clarified' : analysis.parameterStatuses.filters,
                       icon: SlidersHorizontal,
                     },
                   ].map((row, idx) => {
@@ -888,7 +937,7 @@ ${
                   </div>
 
                   {/* Specification Table */}
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
                       <span className="text-[10px] font-bold uppercase text-slate-400 block">Market</span>
                       <span className="text-xs sm:text-sm font-bold text-[#09090B]">{finalExperiment.instrument}</span>
@@ -904,6 +953,18 @@ ${
                     <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
                       <span className="text-[10px] font-bold uppercase text-slate-400 block">Exit Rule</span>
                       <span className="text-xs sm:text-sm font-bold text-[#09090B]">{finalExperiment.exitCondition}</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Holding Window</span>
+                      <span className="text-xs sm:text-sm font-bold text-[#09090B]">{finalExperiment.holdingPeriod}</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Regime Filter</span>
+                      <span className="text-xs sm:text-sm font-bold text-[#09090B]">
+                        {finalExperiment.filters.length > 0
+                          ? finalExperiment.filters.join(', ')
+                          : 'None (Broad market)'}
+                      </span>
                     </div>
                   </div>
                 </div>

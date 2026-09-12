@@ -326,10 +326,81 @@ function ResultsContent() {
       return;
     }
 
-    // 2. Otherwise process as research query / parameter modification
+    // 2. Check for parameter modifier chips & refinements (e.g. "Test on 5-day holding", "Switch to 1-Hour timeframe", "Add 2% Stop Loss")
+    const isHoldingTweak = lower.includes('5-day') || lower.includes('5 day') || lower.includes('10-day') || lower.includes('holding');
+    const isTimeframeTweak = lower.includes('1-hour') || lower.includes('1 hour') || lower.includes('intraday') || lower.includes('timeframe');
+    const isStopLossTweak = lower.includes('stop loss') || lower.includes('stoploss') || lower.includes('target');
+
+    if ((isHoldingTweak || isTimeframeTweak || isStopLossTweak) && analysis) {
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `msg_user_${Date.now()}`,
+          sender: 'user',
+          text: msg,
+          timestamp: timeStr,
+        },
+      ]);
+      setIsChatSending(true);
+
+      const targetInstrument = finalExperiment?.instrument || analysis.instrument || 'NIFTY';
+      let tweakSummary = '';
+
+      if (isHoldingTweak) {
+        const days = lower.includes('10') ? '10 trading days' : lower.includes('1') ? '1 trading day' : '5 trading days';
+        tweakSummary = `Updated holding period to **${days}** for **${targetInstrument}**.`;
+        
+        if (finalExperiment) {
+          setFinalExperiment({
+            ...finalExperiment,
+            holdingPeriod: days,
+            hypothesis: `Purchasing ${finalExperiment.instrument} on ${finalExperiment.entryCondition} exhibits a positive post-entry drift over the subsequent ${days} window.`,
+            lastModified: new Date().toLocaleTimeString(),
+          });
+        }
+      } else if (isTimeframeTweak) {
+        const tf = lower.includes('1-hour') || lower.includes('1 hour') ? '1-Hour (60m)' : lower.includes('intraday') ? 'Intraday (5m)' : 'Daily';
+        tweakSummary = `Switched execution timeframe to **${tf}** for **${targetInstrument}**.`;
+        
+        if (finalExperiment) {
+          setFinalExperiment({
+            ...finalExperiment,
+            timeframe: tf,
+            lastModified: new Date().toLocaleTimeString(),
+          });
+        }
+      } else if (isStopLossTweak) {
+        tweakSummary = `Added **2.0% Fixed Stop-Loss** risk protection to **${targetInstrument}**.`;
+        
+        if (finalExperiment) {
+          setFinalExperiment({
+            ...finalExperiment,
+            exitCondition: `${finalExperiment.exitCondition} or 2% Stop Loss`,
+            lastModified: new Date().toLocaleTimeString(),
+          });
+        }
+      }
+
+      setTimeout(() => {
+        setIsChatSending(false);
+        streamAiMessage(
+          `${tweakSummary} Specification updated on the left.`,
+          ['+ Test on 10-day holding', '+ Switch to Daily timeframe', '+ Add 3% Take Profit']
+        );
+      }, 450);
+      return;
+    }
+
+    // 3. Otherwise process as research query with context preservation if instrument is omitted
     setIsChatSending(true);
-    setInputQuery(msg);
-    performAnalysis(msg, true);
+    let fullQuery = msg;
+    const hasInstrument = ['nifty', 'bank', 'reliance', 'btc', 'eth', 'spy', 'tcs', 'hdfc', 'gold', 'crude', 'stock'].some((kw) => lower.includes(kw));
+    if (!hasInstrument && analysis?.instrument && analysis.instrument !== 'Not specified') {
+      fullQuery = `For ${analysis.instrument}: ${msg}`;
+    }
+
+    setInputQuery(fullQuery);
+    performAnalysis(fullQuery, true);
   };
 
   const handleCompileClarifications = (e: React.FormEvent) => {

@@ -104,33 +104,33 @@ function ResultsContent() {
 
     if (contextStage === 'holding_changed') {
       const chips: string[] = [];
-      chips.push(tf.includes('daily') ? '+ Switch to 1-Hour timeframe' : '+ Switch to Daily timeframe');
-      chips.push(exit.includes('stop') ? '+ Add 3% Take Profit' : '+ Add 2% Stop Loss');
-      chips.push(`+ Compare vs Buy & Hold ${inst}`);
+      chips.push(tf.includes('daily') ? 'Switch to 1-Hour timeframe' : 'Switch to Daily timeframe');
+      chips.push(exit.includes('stop') ? 'Add 3% Take Profit' : 'Add 2% Stop Loss');
+      chips.push(`Compare vs Buy & Hold ${inst}`);
       return chips;
     }
 
     if (contextStage === 'timeframe_changed') {
       const chips: string[] = [];
-      chips.push(holding.includes('5') ? '+ Test on 3-day swing' : '+ Test on 5-day holding');
-      chips.push(filters.includes('volatility') ? '+ Filter: RSI < 30 Oversold' : '+ Filter: India VIX > 20');
-      chips.push('+ Add 2% Stop Loss');
+      chips.push(holding.includes('5') ? 'Test on 3-day swing' : 'Test on 5-day holding');
+      chips.push(filters.includes('volatility') ? 'Filter: RSI < 30 Oversold' : 'Filter: India VIX > 20');
+      chips.push('Add 2% Stop Loss');
       return chips;
     }
 
     if (contextStage === 'stoploss_changed') {
       return [
-        '+ Add 3% Take Profit Target',
-        '+ Test on 10-day continuation',
-        '+ Switch to 1-Hour timeframe',
+        'Add 3% Take Profit Target',
+        'Test on 10-day continuation',
+        'Switch to 1-Hour timeframe',
       ];
     }
 
     if (contextStage === 'clarified') {
       return [
-        '+ Test on 5-day holding',
-        '+ Add 2% Stop Loss',
-        `+ Compare vs Buy & Hold ${inst}`,
+        'Test on 5-day holding',
+        'Add 2% Stop Loss',
+        `Compare vs Buy & Hold ${inst}`,
       ];
     }
 
@@ -140,18 +140,18 @@ function ResultsContent() {
     const isStock = ['reliance', 'tcs', 'hdfc', 'infy', 'apple', 'tsla'].some((s) => inst.toLowerCase().includes(s));
 
     if (isCrypto) {
-      chips.push('+ Switch to 4-Hour timeframe');
-      chips.push('+ Add 4% Trailing Stop');
-      chips.push('+ Test on 7-day holding');
+      chips.push('Switch to 4-Hour timeframe');
+      chips.push('Add 4% Trailing Stop');
+      chips.push('Test on 7-day holding');
     } else if (isStock) {
-      chips.push('+ Test on 5-day holding');
-      chips.push('+ Add 1.5% Stop Loss');
-      chips.push(`+ Filter: Earnings season only`);
+      chips.push('Test on 5-day holding');
+      chips.push('Add 1.5% Stop Loss');
+      chips.push('Filter: Earnings season only');
     } else {
       // Default index (NIFTY, BANK NIFTY, SPY)
-      chips.push(holding.includes('5') ? '+ Test on 3-day swing' : '+ Test on 5-day holding');
-      chips.push(tf.includes('1-hour') ? '+ Switch to Daily timeframe' : '+ Switch to 1-Hour timeframe');
-      chips.push(filters.includes('volatility') ? '+ Add 2% Stop Loss' : '+ Filter: India VIX > 20');
+      chips.push(holding.includes('5') ? 'Test on 3-day swing' : 'Test on 5-day holding');
+      chips.push(tf.includes('1-hour') ? 'Switch to Daily timeframe' : 'Switch to 1-Hour timeframe');
+      chips.push(filters.includes('volatility') ? 'Add 2% Stop Loss' : 'Filter: India VIX > 20');
     }
 
     return chips;
@@ -357,7 +357,8 @@ function ResultsContent() {
 
   const handleChatSubmit = (e?: React.FormEvent, customMsg?: string) => {
     if (e) e.preventDefault();
-    const msg = (customMsg || chatInput).trim();
+    const rawMsg = (customMsg || chatInput).trim();
+    const msg = rawMsg.replace(/^\+\s*/, '');
     if (!msg || isChatSending || isLoading) return;
 
     setChatInput('');

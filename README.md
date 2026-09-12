@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📈 TradeAI — AI Trading Research Assistant
 
-## Getting Started
+> **"Turn a market question into a structured, testable quantitative experiment."**
 
-First, run the development server:
+A production-grade, full-stack Next.js prototype designed for quantitative researchers and systematic traders. It translates conversational market hypotheses into mathematically sound, unambiguous backtesting specifications by extracting parameters, identifying missing variables, and actively clarifying ambiguities.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[![Security Audit](https://img.shields.io/badge/Security%20Audit-PASS%20(43%2F43)-emerald.svg)](./SECURITY_AUDIT.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.3-black.svg)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8.svg)](https://tailwindcss.com/)
+
+---
+
+## 🚀 Overview
+
+Traders and quantitative researchers frequently ask qualitative market questions (e.g., *"Does buying NIFTY after a sharp fall work?"* or *"Does buying the dip work better during high volatility?"*).
+
+Translating these ideas into quantitative tests usually suffers from two major failure modes:
+1. **Silent Parameter Invention:** Systems blindly guess critical parameters (e.g., guessing that "sharp fall" = 1% or picking an arbitrary holding horizon without consent).
+2. **Ambiguity Overload:** Systems either reject vague questions entirely or accept them without enforcing testability.
+
+**TradeAI** bridges conversational language to structured experimentation with rigorous product thinking:
+- **Discovers & Parses:** Structured entity and concept extraction (instruments, indicators, market conditions).
+- **Distinguishes:** Clearly separates what the user explicitly stated vs. what was assumed vs. what is missing.
+- **Clarifies:** Interactively prompts for ambiguities with discrete quantitative choices and custom override capabilities.
+- **Compiles:** Produces standardized experiment specifications ready for historical simulation engines (Backtrader, VectorBT, QuantConnect).
+- **Real-Time Copilot Workspace:** Interactive refinement workspace with word-by-word streaming suggestions, parameter overrides, and markdown export.
+
+---
+
+## 🔄 Research Workflow
+
+```mermaid
+graph TD
+    A["1. Natural-Language Market Prompt<br/>(e.g. 'Does buying NIFTY after a 1% fall work?')"] --> B["2. AI Analysis & Semantics Parsing<br/>(Multi-Provider Engine: Groq / Gemini / OpenAI)"]
+    B --> C["3. Parameter Extraction & Concept Tagging<br/>(Explicit vs. Assumed vs. Missing)"]
+    C --> D{"Missing or Ambiguous<br/>Parameters?"}
+    D -- Yes --> E["4. Clarification UI<br/>(Discrete Chips + Custom Overrides)"]
+    D -- No --> F["5. Research Workspace & Spec<br/>(Testable Quantitative Plan)"]
+    E --> F
+    F --> G["6. Interactive Copilot & Live Tweaks<br/>(Adjust Entry, Exit, Stop Loss, Horizon)"]
+    F --> H["7. Export / Code Specification<br/>(JSON & Vectorized Backtest Schema)"]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Project Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+├── app/
+│   ├── layout.tsx              # Root shell, fonts (Urbanist & Roboto), meta tags
+│   ├── page.tsx                # Hero section, sample prompts, methodology guide
+│   ├── results/
+│   │   └── page.tsx            # Dedicated Research & Copilot Workspace SPA
+│   ├── globals.css             # Tailwind 4 styling, dark cards, 3D vector composition
+│   └── api/
+│       └── analyze/
+│           └── route.ts        # Server API endpoint (Rate limiting, sanitization, HTTP 405 gating)
+├── components/
+│   ├── Header.tsx              # Frosted glassmorphic navigation pill bar
+│   ├── QuestionInput.tsx       # Hero input box, character limits, parallax 3D vector pill
+│   ├── ExampleQuestions.tsx    # Curated prompts for instant hypothesis evaluation
+│   ├── ProductThinkingGuide.tsx # 4-step quantitative methodology process cards
+│   ├── FeaturesSection.tsx     # Tree-branch connector layout with pulse animations
+│   ├── ClarificationPanel.tsx  # Parameter disambiguation with preset & custom inputs
+│   ├── ExperimentCard.tsx      # Final structured specification with markdown export
+│   └── EditExperiment.tsx      # Modal for parameter override and manual tuning
+├── lib/
+│   └── ai/
+│       ├── schema.ts           # JSON schemas, system prompts, defense-in-depth sanitizers
+│       ├── mockAnalyzer.ts     # Intelligent deterministic offline fallback engine
+│       └── analyzeQuestion.ts  # Multi-provider LLM abstraction (Groq / Gemini / OpenAI / Mock)
+├── types/
+│   └── experiment.ts           # Strict TypeScript data models
+├── scripts/
+│   ├── security-qa-audit.mjs   # Comprehensive 43-test security & QA suite
+│   └── test-prototype.mjs      # Fast core flow verification test
+├── .env.example                # Example environment variables template
+└── SECURITY_AUDIT.md           # Senior Application Security & QA Engineering Report
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛡️ Security & Quality Assurance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A dedicated security audit was conducted against OWASP Top 10 and LLM-specific vulnerabilities. See the full [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) report.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Zero Client Credential Leakage:** API keys are strictly confined to Node.js server runtimes (`process.env`).
+- **Zero XSS / Unsafe HTML:** Verified 0 occurrences of `dangerouslySetInnerHTML`, `innerHTML`, or `eval()`.
+- **Sliding-Window Rate Limiting:** 30 req/min per IP with automatic memory cleanup in [app/api/analyze/route.ts](file:///c:/web_devp_course/MERN_Projects/TradeAI/app/api/analyze/route.ts).
+- **Adversarial Prompt Injection Defense:** All LLM outputs are treated as untrusted and passed through strict type/length sanitizers.
+- **Zero Cross-User Leakage:** Verified stateless request execution and isolated client-side state.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🏃 Getting Started
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Prerequisites
+- Node.js 18.x or higher
+- npm
+
+### 1. Clone & Install Dependencies
+```bash
+git clone https://github.com/your-username/TradeAI.git
+cd TradeAI
+npm install
+```
+
+### 2. (Optional) Configure API Keys
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Add your preferred LLM provider key (Groq, Gemini, or OpenAI):
+```env
+GROQ_API_KEY=your_groq_api_key_here
+# GEMINI_API_KEY=your_gemini_key_here
+# OPENAI_API_KEY=your_openai_key_here
+```
+> *Note: If no API key is provided, TradeAI automatically runs in **Deterministic Offline Mode** with 100% functionality and zero network failure risk.*
+
+### 3. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 4. Run Automated Test Suites
+```bash
+# Run core flow scenario tests
+npm test
+
+# Run comprehensive 43-test Security & QA Audit
+npm run test:audit
+```
+
+### 5. Production Build
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 📄 License
+MIT License. Free for open-source and commercial use.
+

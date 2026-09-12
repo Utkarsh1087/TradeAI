@@ -1,0 +1,11 @@
+{
+  "id": "exp_test_live",
+  "instrument": "RELIANCE",
+  "timeframe": "1-Hour (60m)",
+  "entryCondition": "RELIANCE falls by >= 2.0% in a single session",
+  "exitCondition": "Close position after 5 trading days or 2% Stop Loss",
+  "holdingPeriod": "5 trading days",
+  "filters": [
+    "High volatility periods (India VIX > 20)"
+  ]
+}

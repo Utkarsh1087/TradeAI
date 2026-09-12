@@ -355,6 +355,16 @@ function ResultsContent() {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isLoading]);
 
+  useEffect(() => {
+    if (finalExperiment) {
+      fetch('/api/save-spec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalExperiment),
+      }).catch(() => {});
+    }
+  }, [finalExperiment]);
+
   const handleChatSubmit = (e?: React.FormEvent, customMsg?: string) => {
     if (e) e.preventDefault();
     const rawMsg = (customMsg || chatInput).trim();

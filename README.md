@@ -142,6 +142,51 @@ npm start
 
 ---
 
+## 🤖 AI Tools & Development Process
+
+As encouraged by the assignment brief, modern AI tools were leveraged throughout the development lifecycle:
+
+| Tool | Purpose & Usage |
+|---|---|
+| **Antigravity (Google DeepMind)** | Architecture planning, test-suite generation (43-point security audit), and refactoring |
+| **Gemini 2.5 Flash / Pro** | Structured Output JSON schema enforcement and prompt engineering |
+| **Groq (Llama 3.3 70B)** | High-throughput natural-language parsing evaluation |
+
+### Personal Design & Review Breakdown
+- **Personally Designed & Architected**: 
+  - Dual-Engine pipeline design (LLM Structured Outputs with a 100% deterministic offline fallback engine so the app never fails even without API keys).
+  - Clarification interaction model (distinguishing Explicit vs. Assumed vs. Missing variables).
+  - Quantitative experiment schema (`ParsedExperiment`, `AmbiguityItem`, `BacktestSpec`).
+  - Security hardening layer (rate limiter, input sanitization, prototype verification suite).
+- **AI-Assisted**:
+  - Drafting initial boilerplate, generating initial icon SVG assets, and edge-case fuzzing matrices for the security audit suite.
+- **Personally Reviewed & Modified**:
+  - Validated 100% of TypeScript type definitions, state transitions, API route handlers, and mathematical consistency in trading rules.
+
+---
+
+## 💡 Key Architectural & Product Decisions
+
+1. **Dual-Engine Architecture (Zero-Failure Guarantee):**
+   Instead of a fragile LLM wrapper that breaks when API quotas run out, TradeAI incorporates an intelligent deterministic offline parser that extracts indicators, instruments, timeframes, and volatility filters natively with zero external dependencies.
+2. **Active Disambiguation vs. Silent Assumption:**
+   Quantitative backtesting fails when assumptions are silently made. TradeAI categorizes missing parameters into *Critical* and *Refinement* ambiguities, actively prompting the user with quantitative chips before compiling.
+3. **Structured Outputs over Chat Text:**
+   Rather than rendering unstructured markdown paragraphs, TradeAI enforces strict JSON schemas, allowing instantaneous parameter overrides and direct JSON export for quantitative backtesting engines (Backtrader / VectorBT).
+4. **Server-Side Security & Rate Limiting:**
+   Input sanitization, regex length locks, IP-based sliding window rate limits, and server-side secret management protect the application against prompt injection and resource exhaustion.
+
+---
+
+## 🔮 What I Would Improve With More Time
+
+1. **Live Historical Backtesting Integration:** Connect the compiled experiment JSON directly to historical market data APIs (e.g. Yahoo Finance, Alpaca, Zerodha) to show immediate equity curves and Sharpe ratios.
+2. **Multi-Leg Strategy & Options Parser:** Extend the grammar and schema to parse complex multi-leg options structures (Iron Condors, Straddles, Delta-Neutral hedges).
+3. **Historical Experiment Memory:** Introduce persistent database storage (PostgreSQL / Supabase) with semantic vector search to compare newly formulated hypotheses against past backtest results.
+4. **Automated Python Backtrader Code Generation:** Generate downloadable Python scripts (`strategy.py`) implementing the parsed rules for local execution in quantitative IDEs.
+
+---
+
 ## 👨‍💻 Developer Note
 Building this prototype was an exciting deep-dive into bridging quantitative trading concepts with structured AI interactions. I focused on making the experience intuitive, reliable, and production-ready. Hope you enjoy reviewing and testing it!
 

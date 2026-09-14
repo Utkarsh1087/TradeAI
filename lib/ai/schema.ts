@@ -117,12 +117,16 @@ export function validateAndSanitizeAnalysis(data: any, originalQuestion: string)
       const opt = rawOptions[j];
       if (typeof opt === 'string') {
         const cleaned = cleanString(opt, '', 100);
-        if (cleaned) options.push({ label: cleaned, value: cleaned });
+        if (cleaned && !cleaned.toLowerCase().startsWith('custom')) {
+          options.push({ label: cleaned, value: cleaned });
+        }
       } else if (opt && typeof opt === 'object') {
         const label = cleanString(opt.label, 'Option', 100);
         const value = cleanString(opt.value, label, 100);
         const desc = opt.description ? cleanString(opt.description, '', 200) : undefined;
-        options.push({ label, value, description: desc });
+        if (!label.toLowerCase().startsWith('custom') && !value.toLowerCase().startsWith('custom')) {
+          options.push({ label, value, description: desc });
+        }
       }
     }
 

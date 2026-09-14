@@ -958,7 +958,9 @@ ${
                               {q.question}
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {q.options.map((opt, oIdx) => {
+                              {q.options
+                                .filter((opt) => !opt.label.toLowerCase().startsWith('custom') && !opt.value.toLowerCase().startsWith('custom'))
+                                .map((opt, oIdx) => {
                                 const isSel = cur.mode === 'preset' && cur.value === opt.value;
                                 return (
                                   <button

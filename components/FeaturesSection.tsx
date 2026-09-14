@@ -15,18 +15,21 @@ export function FeaturesSection() {
     {
       icon: Bot,
       title: 'Hypothesis Extraction',
+      badge: { label: 'Available Now', isUpcoming: false },
       description:
         'Parse conversational market ideas, indicator combinations, and multi-asset logic into testable mathematical conditions.',
     },
     {
       icon: ClipboardCheck,
       title: 'Ambiguity & Edge-Case Flagging',
+      badge: { label: 'Available Now', isUpcoming: false },
       description:
         'Identify missing stop-losses, vague lookback periods, unstated trade horizons, and execution biases before backtesting.',
     },
     {
       icon: BookOpen,
       title: 'Market Universe & Regimes',
+      badge: { label: 'Available Now', isUpcoming: false },
       description:
         'Categorize instruments across index futures, equities, volatility regimes, and intraday trading sessions with clarity.',
     },
@@ -36,20 +39,23 @@ export function FeaturesSection() {
     {
       icon: UserCheck,
       title: 'Interactive Refinement',
+      badge: { label: 'Available Now', isUpcoming: false },
       description:
         'Refine entry triggers, take-profit targets, holding periods, and market filters in a real-time copilot workspace.',
     },
     {
       icon: ShieldCheck,
       title: 'Quantitative Guardrails',
+      badge: { label: 'Coming Soon', isUpcoming: true },
       description:
-        'Prevent curve-fitting, lookahead bias, and unrealistic fill assumptions with pre-backtest parameter checks.',
+        'Flags unstated assumptions & parameter gaps in your spec today. Full automated backtest simulation engine with Deflated Sharpe & overfit testing is coming soon.',
     },
     {
       icon: Plug,
       title: 'Backtest Spec & Code Export',
+      badge: { label: 'Coming Soon', isUpcoming: true },
       description:
-        'Generate standardized JSON experiment schemas, vectorized Python/Backtrader code, and quantitative testing rules.',
+        'Exports standardized JSON experiment schemas (strategy_spec.json) & Markdown rules today. Auto-generated Python (VectorBT & Backtrader) executable script export is coming soon.',
     },
   ];
 
@@ -85,8 +91,26 @@ export function FeaturesSection() {
                   className="features-item effectFade fadeUp cursor-pointer"
                   data-delay={idx * 0.15}
                 >
-                  <div className="icon-badge">
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="icon-badge !mb-0">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    {feat.badge && (
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wide uppercase border shadow-2xs ${
+                          feat.badge.isUpcoming
+                            ? 'bg-amber-50 text-amber-800 border-amber-200/90'
+                            : 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            feat.badge.isUpcoming ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
+                          }`}
+                        />
+                        <span>{feat.badge.label}</span>
+                      </span>
+                    )}
                   </div>
                   <h6 className="title">{feat.title}</h6>
                   <p>{feat.description}</p>
@@ -273,8 +297,26 @@ export function FeaturesSection() {
                   className="features-item effectFade fadeUp cursor-pointer"
                   data-delay={idx * 0.15 + 0.1}
                 >
-                  <div className="icon-badge">
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="icon-badge !mb-0">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    {feat.badge && (
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wide uppercase border shadow-2xs ${
+                          feat.badge.isUpcoming
+                            ? 'bg-amber-50 text-amber-800 border-amber-200/90'
+                            : 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            feat.badge.isUpcoming ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
+                          }`}
+                        />
+                        <span>{feat.badge.label}</span>
+                      </span>
+                    )}
                   </div>
                   <h6 className="title">{feat.title}</h6>
                   <p>{feat.description}</p>

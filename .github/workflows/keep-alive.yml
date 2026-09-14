@@ -1,0 +1,33 @@
+name: Keep Alive & Health Check
+
+on:
+  schedule:
+    # Runs every 6 minutes (GitHub Actions cron syntax)
+    - cron: '*/6 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  ping-server:
+    name: Ping Deployed Instance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Application Endpoint
+        run: |
+          # Priority: GitHub Repository Secret/Variable APP_URL, else fallback URL
+          TARGET_URL="${{ secrets.APP_URL }}"
+          
+          if [ -z "$TARGET_URL" ]; then
+            echo "⚠️ APP_URL secret is not set. Please set 'APP_URL' in GitHub Repo Settings -> Secrets and variables -> Actions."
+            echo "Attempting fallback check..."
+            TARGET_URL="https://trade-ai.vercel.app"
+          fi
+          
+          echo "Pinging: $TARGET_URL"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$TARGET_URL" || echo "FAILED")
+          
+          echo "Response Status Code: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Server is alive and healthy (Status: $HTTP_STATUS)."
+          else
+            echo "⚠️ Unexpected status code: $HTTP_STATUS"
+          fi

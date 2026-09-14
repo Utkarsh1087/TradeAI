@@ -525,7 +525,8 @@ function ResultsContent() {
       if (field === 'timeframe' || qText.includes('timeframe')) {
         updatedTimeframe = val;
       } else if (field === 'entryCondition' || qText.includes('fall') || qText.includes('dip')) {
-        updatedEntry = `${analysis.instrument} falls by >= ${val} in a single session`;
+        const cleanThreshold = val.replace(/^[≥>=]+\s*/, '').replace(/\s*drop in one period/i, '').replace(/\s*fall in one period/i, '').trim();
+        updatedEntry = `${analysis.instrument} falls by >= ${cleanThreshold} in a single session`;
       } else if (field === 'holdingPeriod' || qText.includes('holding') || qText.includes('how long')) {
         updatedHolding = val;
         if (updatedExit === 'Not specified') {

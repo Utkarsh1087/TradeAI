@@ -19,6 +19,13 @@ export function EditExperiment({
 }: EditExperimentProps) {
   const [formData, setFormData] = useState<FinalExperiment>({ ...experiment });
 
+  // Always keep formData in sync with latest experiment state when opened or updated
+  React.useEffect(() => {
+    if (isOpen) {
+      setFormData({ ...experiment });
+    }
+  }, [experiment, isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {

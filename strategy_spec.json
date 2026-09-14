@@ -1,27 +1,25 @@
 {
-  "id": "exp_1789248612133",
-  "originalQuestion": "\"Does buying NIFTY after a 1% fall work better during high-volatility periods?\"",
+  "id": "exp_1789384752331",
+  "originalQuestion": "'Does buying NIFTY after a sharp fall work?",
   "instrument": "NIFTY",
-  "timeframe": "15-minute",
-  "entryCondition": "NIFTY falls by >=1% in a single period",
-  "exitCondition": "target_gain",
-  "holdingPeriod": "1d",
+  "timeframe": "1h",
+  "entryCondition": "NIFTY falls by >= 2pct_1day in a single session",
+  "exitCondition": "end_holding",
+  "holdingPeriod": "5 trading days",
   "filters": [
-    "VIX>25"
+    "High volatility periods (India VIX > 20)"
   ],
   "testPeriod": "2019 - 2024 (5-Year Historical Sample)",
-  "researchQuestion": "Does buying NIFTY after a 1% decline generate superior returns during high‑volatility periods compared to other market regimes?",
-  "hypothesis": "Purchasing NIFTY on NIFTY falls by >=1% in a single period exhibits a positive post-entry drift over the subsequent 1d window during VIX>25.",
-  "assumptions": [
-    "Daily timeframe is a common default for percentage‑based moves and is assumed unless clarified"
-  ],
+  "researchQuestion": "Does buying NIFTY immediately after a sharp fall generate positive returns?",
+  "hypothesis": "Purchasing NIFTY on NIFTY falls by >= 2pct_1day in a single session exhibits a positive post-entry drift over the subsequent 5 trading days window.",
+  "assumptions": [],
   "missingInformation": [],
   "confidence": "high",
   "userClarificationsApplied": {
-    "q1": "15-minute",
-    "q2": "VIX>25",
-    "q3": "target_gain",
-    "q4": "1d"
+    "q1": "2pct_1day",
+    "q2": "1h",
+    "q3": "3d",
+    "q4": "end_holding"
   },
-  "lastModified": "03:00:12"
+  "lastModified": "16:49:26"
 }

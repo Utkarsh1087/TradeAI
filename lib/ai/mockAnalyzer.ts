@@ -179,50 +179,65 @@ export function analyzeQuestionWithMock(question: string): ExperimentAnalysis {
   // 9. Clarification Questions
   const clarificationQuestions: ClarificationQuestion[] = [];
 
-  // Question A: Sharp fall / Dip ambiguity
+  // Question 1: Sharp fall / Dip ambiguity
   if (isSharpFall || isDip) {
     clarificationQuestions.push({
       id: 'clarify_entry_fall',
       field: 'entryCondition',
-      question: `How should we define a "${isSharpFall ? 'sharp fall' : 'dip'}"?`,
+      question: `How do you define a "${isSharpFall ? 'sharp fall' : 'dip'}" for ${instrument}?`,
       context: 'Quantitative testing requires an unambiguous percentage drop threshold to measure signals.',
       options: [
-        { label: '1% or more fall', value: '1% or more', description: 'Moderate single-session decline' },
-        { label: '2% or more fall', value: '2% or more', description: 'Significant standard deviation pullback' },
-        { label: '3% or more fall', value: '3% or more', description: 'High-stress liquidation event' },
+        { label: '≥ 1% drop in one period', value: '1% drop in one period' },
+        { label: '≥ 2% drop in one period', value: '2% drop in one period' },
+        { label: '≥ 3% drop in one period', value: '3% drop in one period' },
       ],
       allowCustom: true,
     });
   }
 
-  // Question B: Holding period
-  if (holdingStatus === 'missing') {
+  // Question 2: Holding period
+  if (holdingStatus === 'missing' || isSharpFall || isDip) {
     clarificationQuestions.push({
       id: 'clarify_holding_period',
       field: 'holdingPeriod',
-      question: 'How long should the position be held?',
+      question: 'What is the intended holding period after entering the trade?',
       context: 'Holding horizon determines mean-reversion recovery window and risk exposure.',
       options: [
-        { label: '1 trading day', value: '1 day', description: 'Overnight bounce play' },
-        { label: '3 trading days', value: '3 days', description: 'Short-term mean-reversion swing' },
-        { label: '5 trading days', value: '5 days', description: 'One full calendar week holding' },
-        { label: '10 trading days', value: '10 days', description: 'Multi-week continuation' },
+        { label: '1 trading day', value: '1 trading day' },
+        { label: '3 trading days', value: '3 trading days' },
+        { label: '1 week', value: '1 week' },
       ],
       allowCustom: true,
     });
   }
 
-  // Question C: Volatility benchmark if high volatility mentioned
-  if (filters.some(f => f.toLowerCase().includes('volatility'))) {
+  // Question 3: Exit rule
+  if (isSharpFall || isDip || exitStatus === 'missing') {
     clarificationQuestions.push({
-      id: 'clarify_volatility_benchmark',
-      field: 'filters',
-      question: 'How should "high volatility" be quantified?',
-      context: 'Specifying the volatility filter creates an objective market regime boundary.',
+      id: 'clarify_exit_rule',
+      field: 'exitCondition',
+      question: 'Which exit rule should be applied to close the position?',
+      context: 'Explicit exit rule determines risk and take-profit mechanics.',
       options: [
-        { label: 'India VIX > 18', value: 'India VIX > 18', description: 'Elevated market caution' },
-        { label: 'India VIX > 22', value: 'India VIX > 22', description: 'Extreme panic/volatility regime' },
-        { label: 'Top 25% Historical 20-Day ATR', value: 'Top 25% ATR', description: 'Asset-specific price volatility' },
+        { label: 'Fixed holding period (as defined above)', value: 'Fixed holding period (as defined above)' },
+        { label: 'Target profit of X%', value: 'Target profit of 3%' },
+        { label: 'Stop-loss of X%', value: 'Stop-loss of 2%' },
+      ],
+      allowCustom: true,
+    });
+  }
+
+  // Question 4: Market regime / filter
+  if (isSharpFall || isDip || filterStatus === 'missing' || filters.some(f => f.toLowerCase().includes('volatility'))) {
+    clarificationQuestions.push({
+      id: 'clarify_filters',
+      field: 'filters',
+      question: 'Do you want to apply any market-regime or indicator filters to the strategy?',
+      context: 'Specifying regime filters creates objective market conditions.',
+      options: [
+        { label: 'No filters (trade every signal)', value: 'None (Broad market)' },
+        { label: 'High volatility only (e.g., India VIX > 20)', value: 'High volatility only (e.g., India VIX > 20)' },
+        { label: 'Uptrend only (e.g., 50-day SMA upward)', value: 'Uptrend only (e.g., 50-day SMA upward)' },
       ],
       allowCustom: true,
     });
